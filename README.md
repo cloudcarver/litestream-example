@@ -1,23 +1,22 @@
 # litestream-demo
 
-1. create a sqlite file
-```bash
-$ mkdir -p data 
-$ sqlite3
-sqlite> .open ./data/data.db
-sqlite> .exit
-```
+### Prerequiste
+Docker
 
-2. create a s3 bucket following the [guide](https://litestream.io/guides/s3/) 
+### Quick start
+1. create an s3 bucket following the [guide](https://litestream.io/guides/s3/) 
 
-3. create a `litestream.yml` file and a sqlite database
-```bash
-./dev init
-```
+2. create a `litestream.yml` file and persistent database file in `./data`
+    ```bash
+    $ ./dev init
+    ```
 
-4. wirte down your aws credentials in `litestream.yml`
+3. wirte down your aws credentials in `litestream.yml`
 
-5. run litestream directly to validate your setup
-```bash
-./dev lite
-```
+4. run litestream directly to validate your setup
+    ```bash
+    $ ./dev lite
+    ```
+
+### FAQ
+Using [rootless docker](https://docs.docker.com/engine/security/rootless/)
