@@ -1,5 +1,7 @@
 # litestream-demo
 
+A self-hosted [litestream](https://github.com/benbjohnson/litestream) docker daemon example
+
 ### Prerequiste
 Docker
 
