@@ -1,0 +1,57 @@
+#!/bin/bash
+set -e
+op=$1
+if [ -z "$op" ]; then
+  echo "no operation specified"
+  exit 1
+fi
+
+# init project
+if [ "$op" == "init" ]; then
+  set +e
+  stat data > /dev/null 2>&1
+  if [ "$?" == "0" ]; then 
+    echo "data directory exists. skip init procedure."
+    exit 1
+  fi
+  set -e
+  echo "initializing project..."
+  echo "[1] building litestrem image"
+  sudo docker build . -f docker/Dockerfile.litestream -t built-litestream
+  echo "[2] generating configuration file"
+  cat << EOF > litestream.yml
+access-key-id: <access key>
+secret-access-key: <secret key>
+dbs:
+  - path: /data/data.db
+    replicas:
+      - type: s3
+        bucket: test-sqlite
+        path:   db
+        region: cn-northwest-1
+EOF
+  echo "[3] create database file"
+  rm -rf data
+  mkdir -p data
+  touch data/data.db
+  exit 0
+fi
+
+if [ "$op" == "lite" ]; then # init start litestream and watch
+  if [ "$(docker ps -a --filter="name=litestream" | grep litestream)" != "" ]; then
+    sudo docker stop litestream
+    sudo docker rm litestream
+  fi
+  sudo docker run --name=litestream -v $(pwd)/data:/data -v $(pwd)/litestream.yml:/etc/litestream.yml built-litestream litestream replicate
+  exit 0
+elif [ "$op" == "lite-prod" ]; then # start litestream daemon using docker
+  if [ "$(docker ps -a --filter="name=litestream" | grep litestream)" != "" ]; then
+    echo "litestream is already running"
+    exit 1
+  fi
+  sudo docker run --restart=always -d --name=litestream -v $(pwd)/data:/data -v $(pwd)/litestream.yml:/etc/litestream.yml built-litestream litestream replicate
+  exit 0
+else
+  echo "no matching operation found"
+  exit 1
+fi

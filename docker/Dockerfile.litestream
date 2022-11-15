@@ -1,0 +1,7 @@
+FROM golang:1.18-alpine as builder
+RUN apk add build-base
+ENV GOBIN=/bin
+RUN go install github.com/benbjohnson/litestream/cmd/litestream@latest
+
+FROM alpine
+COPY --from=builder /bin/litestream /bin/litestream
